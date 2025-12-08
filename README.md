@@ -8,7 +8,7 @@ A Python-based investigation tool for analyzing industrial-scale automated conte
 
 ## Background
 
-This tool was created following the discovery that my technical article about OBSIDIAN Neural (an open-source AI music VST plugin) was plagiarized, translated, and republished with commercial links injected by Q2BSTUDIO's automated system.
+This tool was created following the discovery that my technical article about [OBSIDIAN Neural](https://github.com/innermost47/ai-dj) (an open-source AI music VST plugin) was reproduced, translated, and republished with commercial links injected by Q2BSTUDIO's automated system.
 
 When their blog showed 36,516+ pages of content, I developed this auditor to systematically document their publishing volume and patterns.
 
