@@ -50,19 +50,51 @@ class Q2BDataVisualizer:
             dates, counts, color=bar_colors, alpha=0.8, edgecolor="black", linewidth=1.5
         )
 
+        num_days = len(dates)
+
+        important_indices = set()
+
+        peak_date = max(daily_data, key=daily_data.get)
+        if peak_date in dates:
+            important_indices.add(dates.index(peak_date))
+
+        important_indices.add(0)
+        important_indices.add(len(dates) - 1)
+
+        if num_days <= 15:
+            indices_to_show = set(range(num_days))
+            font_size = 10
+        elif num_days <= 30:
+            indices_to_show = set(range(0, num_days, 2)) | important_indices
+            font_size = 9
+        elif num_days <= 90:
+            indices_to_show = set(range(0, num_days, 5)) | important_indices
+            font_size = 8
+        elif num_days <= 180:
+            indices_to_show = set(range(0, num_days, 10)) | important_indices
+            font_size = 8
+        else:
+            indices_to_show = important_indices
+            font_size = 9
+
         for i, (date, count) in enumerate(zip(dates, counts)):
-            label = f"{count:,}"
-            if date == earliest or date == latest:
-                label += "\n(partial)"
-            ax.text(
-                i,
-                count + max(counts) * 0.02,
-                label,
-                ha="center",
-                va="bottom",
-                fontsize=10,
-                fontweight="bold",
-            )
+            if i in indices_to_show:
+                label = f"{count:,}"
+                if date == earliest or date == latest:
+                    label += "\n(partial)"
+
+                if num_days > 180 and i in important_indices:
+                    label = f"{date}\n{label}"
+
+                ax.text(
+                    i,
+                    count + max(counts) * 0.02,
+                    label,
+                    ha="center",
+                    va="bottom",
+                    fontsize=font_size,
+                    fontweight="bold",
+                )
 
         avg = report["daily_statistics"]["average_per_day"]
         ax.axhline(
@@ -78,8 +110,13 @@ class Q2BDataVisualizer:
         ax.set_ylabel("Number of Articles", fontsize=14, fontweight="bold")
 
         date_range = f"{earliest} to {latest}"
+        label_info = (
+            f"\nShowing {len(indices_to_show)} of {num_days} days"
+            if num_days > 90
+            else ""
+        )
         ax.set_title(
-            f'Q2BSTUDIO: Daily Article Production\n"Industrial-Scale Automated Content Generation"\nData Period: {date_range}\nNote: First and last days excluded from average (incomplete data)',
+            f'Q2BSTUDIO: Daily Article Production\n"Industrial-Scale Automated Content Generation"\nData Period: {date_range}{label_info}\nNote: First and last days excluded from average (incomplete data)',
             fontsize=14,
             fontweight="bold",
             pad=20,
@@ -88,8 +125,26 @@ class Q2BDataVisualizer:
         ax.legend(fontsize=12, loc="upper left")
         ax.grid(True, alpha=0.3, axis="y")
 
-        if len(dates) > 5:
+        if num_days <= 7:
+            plt.xticks(rotation=0)
+        elif num_days <= 31:
             plt.xticks(rotation=45, ha="right")
+        elif num_days <= 90:
+            tick_positions = list(range(0, num_days, 7))
+            tick_labels = [dates[i] if i < len(dates) else "" for i in tick_positions]
+            plt.xticks(tick_positions, tick_labels, rotation=45, ha="right")
+        elif num_days <= 365:
+            tick_positions = list(range(0, num_days, 30))
+            tick_labels = [dates[i] if i < len(dates) else "" for i in tick_positions]
+            plt.xticks(tick_positions, tick_labels, rotation=45, ha="right")
+        elif num_days <= 730:
+            tick_positions = list(range(0, num_days, 60))
+            tick_labels = [dates[i] if i < len(dates) else "" for i in tick_positions]
+            plt.xticks(tick_positions, tick_labels, rotation=45, ha="right")
+        else:
+            tick_positions = list(range(0, num_days, 180))
+            tick_labels = [dates[i] if i < len(dates) else "" for i in tick_positions]
+            plt.xticks(tick_positions, tick_labels, rotation=45, ha="right")
 
         plt.tight_layout()
         plt.savefig(
