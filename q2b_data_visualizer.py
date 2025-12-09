@@ -37,26 +37,66 @@ class Q2BDataVisualizer:
         earliest = report["date_range"]["earliest"]
         latest = report["date_range"]["latest"]
 
+        valid_dates = [d for d in dates if d != earliest and d != latest]
+
+        regime_change_idx = None
+        regime_change_date = None
+        threshold = 4000
+
+        for i, date in enumerate(valid_dates):
+            if daily_data[date] >= threshold:
+                regime_change_date = date
+                regime_change_idx = dates.index(date)
+                break
+
+        peak_date = max(daily_data, key=daily_data.get)
+        peak_count = daily_data[peak_date]
+        peak_idx = dates.index(peak_date)
+
+        phase1_avg = None
+        phase2_avg = None
+        percentage_increase = None
+
+        if regime_change_date:
+            phase1_dates = [d for d in valid_dates if d < regime_change_date]
+            if phase1_dates:
+                phase1_avg = sum(daily_data[d] for d in phase1_dates) / len(
+                    phase1_dates
+                )
+
+            phase2_dates = [d for d in valid_dates if d >= regime_change_date]
+            if phase2_dates:
+                phase2_avg = sum(daily_data[d] for d in phase2_dates) / len(
+                    phase2_dates
+                )
+
+            if phase1_avg and phase2_avg and phase1_avg > 0:
+                percentage_increase = ((phase2_avg - phase1_avg) / phase1_avg) * 100
+
         bar_colors = []
         for date in dates:
             if date == earliest or date == latest:
                 bar_colors.append("#CCCCCC")
-            elif date == max(daily_data, key=daily_data.get):
+            elif date == peak_date:
+                bar_colors.append("#FFD700")
+            elif regime_change_date and date >= regime_change_date:
                 bar_colors.append(colors[1])
             else:
                 bar_colors.append(colors[0])
 
-        ax.bar(
+        bars = ax.bar(
             dates, counts, color=bar_colors, alpha=0.8, edgecolor="black", linewidth=1.5
         )
+
+        bars[peak_idx].set_edgecolor("red")
+        bars[peak_idx].set_linewidth(3)
 
         num_days = len(dates)
 
         important_indices = set()
 
-        peak_date = max(daily_data, key=daily_data.get)
         if peak_date in dates:
-            important_indices.add(dates.index(peak_date))
+            important_indices.add(peak_idx)
 
         important_indices.add(0)
         important_indices.add(len(dates) - 1)
@@ -96,15 +136,107 @@ class Q2BDataVisualizer:
                     fontweight="bold",
                 )
 
-        avg = report["daily_statistics"]["average_per_day"]
-        ax.axhline(
-            y=avg,
+        ax.plot(
+            peak_idx,
+            peak_count,
+            marker="*",
+            markersize=30,
             color="red",
-            linestyle="--",
-            linewidth=2,
-            label=f"Average: {avg:,.0f} articles/day (excl. partial days)",
-            alpha=0.7,
+            markeredgecolor="darkred",
+            markeredgewidth=2,
+            zorder=5,
         )
+
+        if phase1_avg and phase2_avg:
+            ax.hlines(
+                y=phase1_avg,
+                xmin=-0.5,
+                xmax=regime_change_idx - 0.5,
+                color="blue",
+                linestyle="--",
+                linewidth=2,
+                label=f"Phase 1 avg: {phase1_avg:,.0f} articles/day",
+                alpha=0.7,
+            )
+
+            ax.hlines(
+                y=phase2_avg,
+                xmin=regime_change_idx - 0.5,
+                xmax=len(dates) - 0.5,
+                color="green",
+                linestyle="--",
+                linewidth=2,
+                label=f"Phase 2 avg: {phase2_avg:,.0f} articles/day",
+                alpha=0.7,
+            )
+
+            ax.axvline(
+                x=regime_change_idx,
+                color="red",
+                linestyle="-",
+                linewidth=3,
+                alpha=0.6,
+                label=f"Regime change: {regime_change_date}",
+            )
+
+            if percentage_increase:
+                annotation_y = max(counts) * 0.70
+                ax.annotate(
+                    f"📈 Scaling up: {phase1_avg:,.0f} → {phase2_avg:,.0f} articles/day\n(+{percentage_increase:.0f}%)",
+                    xy=(regime_change_idx, annotation_y),
+                    xytext=(regime_change_idx + num_days * 0.05, annotation_y),
+                    fontsize=11,
+                    fontweight="bold",
+                    bbox=dict(boxstyle="round,pad=0.5", facecolor="yellow"),
+                    arrowprops=dict(
+                        arrowstyle="->",
+                        connectionstyle="arc3,rad=0.3",
+                        lw=2,
+                        color="red",
+                    ),
+                )
+
+            peak_annotation_y = peak_count + max(counts) * 0.05
+            ax.annotate(
+                f"PEAK: {peak_count:,} articles\n{peak_date}",
+                xy=(peak_idx, peak_count),
+                xytext=(peak_idx + num_days * 0.05, peak_annotation_y),
+                fontsize=11,
+                fontweight="bold",
+                bbox=dict(boxstyle="round,pad=0.5", facecolor="orange", alpha=0.8),
+                arrowprops=dict(
+                    arrowstyle="->",
+                    connectionstyle="arc3,rad=0.2",
+                    lw=2,
+                    color="darkred",
+                ),
+            )
+
+        else:
+            avg = report["daily_statistics"]["average_per_day"]
+            ax.axhline(
+                y=avg,
+                color="red",
+                linestyle="--",
+                linewidth=2,
+                label=f"Average: {avg:,.0f} articles/day (excl. partial days)",
+                alpha=0.7,
+            )
+            peak_annotation_y = peak_count + max(counts) * 0.05
+            ax.annotate(
+                f"PEAK: {peak_count:,} articles\n{peak_date}",
+                xy=(peak_idx, peak_count),
+                xytext=(peak_idx + num_days * 0.1, peak_annotation_y),
+                fontsize=11,
+                fontweight="bold",
+                bbox=dict(boxstyle="round,pad=0.5", facecolor="orange", alpha=0.8),
+                arrowprops=dict(
+                    arrowstyle="->",
+                    connectionstyle="arc3,rad=0.2",
+                    lw=2,
+                    color="darkred",
+                ),
+            )
 
         ax.set_xlabel("Date", fontsize=14, fontweight="bold")
         ax.set_ylabel("Number of Articles", fontsize=14, fontweight="bold")
@@ -115,14 +247,21 @@ class Q2BDataVisualizer:
             if num_days > 90
             else ""
         )
+
+        title_text = f'Q2BSTUDIO: Daily Article Production\n"Industrial-Scale Automated Content Generation"\nData Period: {date_range}{label_info}'
+        if regime_change_date:
+            title_text += f"\nRegime Change: {regime_change_date} (First day ≥ {threshold:,} articles) | Peak: {peak_date} ({peak_count:,} articles)"
+        else:
+            title_text += f"\nPeak: {peak_date} ({peak_count:,} articles)"
+
         ax.set_title(
-            f'Q2BSTUDIO: Daily Article Production\n"Industrial-Scale Automated Content Generation"\nData Period: {date_range}{label_info}\nNote: First and last days excluded from average (incomplete data)',
-            fontsize=14,
+            title_text,
+            fontsize=13,
             fontweight="bold",
             pad=20,
         )
 
-        ax.legend(fontsize=12, loc="upper left")
+        ax.legend(fontsize=11, loc="upper left")
         ax.grid(True, alpha=0.3, axis="y")
 
         if num_days <= 7:
