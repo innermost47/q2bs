@@ -3,6 +3,7 @@ from q2b_studio_auditor import Q2BStudioAuditor
 from wayback_archiver import WaybackArchiver
 import os
 import glob
+from datetime import datetime
 
 
 def list_checkpoints():
@@ -56,7 +57,7 @@ def main():
 
     checkpoint_dir = select_checkpoint()
 
-    auditor = Q2BStudioAuditor()
+    auditor = Q2BStudioAuditor(create_output_dir=(checkpoint_dir is None))
 
     start_page = 1
     max_page = None
@@ -73,6 +74,10 @@ def main():
             print(f"\nResuming from page {start_page:,}")
         else:
             print("Failed to load checkpoint. Starting fresh.")
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            auditor.output_dir = f"q2b_audit_{timestamp}"
+            os.makedirs(auditor.output_dir, exist_ok=True)
+            print(f"Output directory: {auditor.output_dir}")
             max_page = auditor.get_max_page_number()
     else:
         max_page = auditor.get_max_page_number()

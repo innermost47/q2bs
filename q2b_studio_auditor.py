@@ -18,7 +18,7 @@ except:
 
 
 class Q2BStudioAuditor:
-    def __init__(self):
+    def __init__(self, create_output_dir=True):
         self.base_url = "https://www.q2bstudio.com"
         self.blog_url = f"{self.base_url}/blog-empresa-aplicaciones"
         self.session = requests.Session()
@@ -34,11 +34,13 @@ class Q2BStudioAuditor:
         self.articles = {}
         self.articles_by_date = defaultdict(list)
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.output_dir = f"q2b_audit_{timestamp}"
-        os.makedirs(self.output_dir, exist_ok=True)
-
-        print(f"Output directory: {self.output_dir}")
+        if create_output_dir:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.output_dir = f"q2b_audit_{timestamp}"
+            os.makedirs(self.output_dir, exist_ok=True)
+            print(f"Output directory: {self.output_dir}")
+        else:
+            self.output_dir = None
 
     def get_max_page_number(self):
         print("\nGetting maximum page number...")
