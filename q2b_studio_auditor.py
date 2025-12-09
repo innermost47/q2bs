@@ -328,22 +328,23 @@ class Q2BStudioAuditor:
             pass
         return None
 
-    def get_max_article_id(self):
-        max_id = 0
+    def get_min_article_id(self):
+        min_id = float("inf")
         for article in self.articles.values():
             article_id = self.extract_article_id(article["url"])
-            if article_id and article_id > max_id:
-                max_id = article_id
-        return max_id
+            if article_id and article_id < min_id:
+                min_id = article_id
+
+        return min_id if min_id != float("inf") else 0
 
     def calculate_resume_page(self, max_page, articles_per_page=9):
-        max_id = self.get_max_article_id()
-        if max_id == 0:
+        min_id = self.get_min_article_id()
+        if min_id == 0:
             return 1
 
         total_articles_estimated = max_page * articles_per_page
 
-        articles_remaining = total_articles_estimated - max_id
+        articles_remaining = total_articles_estimated - min_id
 
         resume_page = articles_remaining // articles_per_page
 
@@ -352,7 +353,7 @@ class Q2BStudioAuditor:
         if resume_page > max_page:
             resume_page = max_page
 
-        print(f"Max article ID scraped: {max_id:,}")
+        print(f"Min article ID scraped (last article): {min_id:,}")
         print(f"Total articles estimated: {total_articles_estimated:,}")
         print(f"Articles remaining: {articles_remaining:,}")
         print(f"Calculated resume page: {resume_page:,}")
