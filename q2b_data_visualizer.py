@@ -201,7 +201,7 @@ class Q2BDataVisualizer:
                 f"PEAK: {peak_count:,} articles\n{peak_date}",
                 xy=(peak_idx, peak_count),
                 xytext=(peak_idx + num_days * 0.05, peak_annotation_y),
-                fontsize=11,
+                fontsize=10,
                 fontweight="bold",
                 bbox=dict(boxstyle="round,pad=0.5", facecolor="orange", alpha=0.8),
                 arrowprops=dict(
@@ -227,7 +227,7 @@ class Q2BDataVisualizer:
                 f"PEAK: {peak_count:,} articles\n{peak_date}",
                 xy=(peak_idx, peak_count),
                 xytext=(peak_idx + num_days * 0.1, peak_annotation_y),
-                fontsize=11,
+                fontsize=10,
                 fontweight="bold",
                 bbox=dict(boxstyle="round,pad=0.5", facecolor="orange", alpha=0.8),
                 arrowprops=dict(
@@ -343,7 +343,7 @@ class Q2BDataVisualizer:
                 dates[max_idx],
                 counts[max_idx],
                 marker="*",
-                markersize=25,
+                markersize=23,
                 color="red",
                 label=f"Peak: {counts[max_idx]:,} articles ({peak_date_str})",
                 markeredgecolor="black",
@@ -459,7 +459,7 @@ class Q2BDataVisualizer:
             "Articles Published\n(Last 4 Weeks)",
             ha="center",
             va="center",
-            fontsize=18,
+            fontsize=22,
             fontweight="bold",
         )
         ax1.axis("off")
@@ -481,7 +481,7 @@ class Q2BDataVisualizer:
             "Articles Per Day\n(Last 4 Weeks Avg)",
             ha="center",
             va="center",
-            fontsize=18,
+            fontsize=22,
             fontweight="bold",
         )
         seconds = 86400 / last_4_weeks_avg if last_4_weeks_avg > 0 else 0
@@ -514,7 +514,7 @@ class Q2BDataVisualizer:
             "Peak Day\n(Last 4 Weeks Max)",
             ha="center",
             va="center",
-            fontsize=18,
+            fontsize=22,
             fontweight="bold",
         )
         peak_seconds = 86400 / last_4_weeks_peak if last_4_weeks_peak > 0 else 0
