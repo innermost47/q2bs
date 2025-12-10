@@ -13,7 +13,6 @@ def list_checkpoints():
 
 def select_checkpoint():
     checkpoints = list_checkpoints()
-
     if not checkpoints:
         print("No existing checkpoints found.")
         return None, False
