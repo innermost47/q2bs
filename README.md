@@ -276,23 +276,17 @@ For very large scrapes (30,000+ pages):
 
 The tool generates three types of visualizations:
 
-#### 1. Statistical Summary
+#### 1. Statistical Summary (Last 4 weeks)
 
 ![Stats Summary Example](graphs/3_stats_summary.png)
-
-Shows total articles, daily average, and comparison with major publishers.
 
 #### 2. Publication Timeline
 
 ![Timeline Example](graphs/2_timeline.png)
 
-Displays article output over time with peak detection.
-
 #### 3. Daily Production
 
 ![Daily Production Example](graphs/1_daily_articles.png)
-
-Breakdown of articles per day with average line.
 
 ### Using the CSV Files
 
