@@ -6,6 +6,15 @@
 
 A Python-based investigation tool for analyzing industrial-scale automated content generation systems. Developed to document and analyze the publishing patterns of q2bstudio.com.
 
+## Featured Investigation
+
+**This case was investigated and published by Numerama (December 2024):**  
+[Qui sont ces parasites qui pillent les articles à l'ère de l'IA ? On a remonté la piste d'une immense ferme à contenus](https://www.numerama.com/cyberguerre/2140051-qui-sont-ces-parasites-qui-pillent-les-articles-a-lere-de-lia-on-a-remonte-la-piste-dune-immense-ferme-a-contenus.html)
+
+The investigation revealed an industrial-scale AI content farm publishing up to **10,275 articles per day** (one every 8.4 seconds), with over **210,000 articles** documented.
+
+---
+
 ## Background
 
 This tool was created following the discovery that my technical article about [OBSIDIAN Neural](https://github.com/innermost47/ai-dj) (an open-source AI music VST plugin) was reproduced, translated, and republished with commercial links injected by Q2BSTUDIO's automated system.
